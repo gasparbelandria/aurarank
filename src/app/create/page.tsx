@@ -19,6 +19,7 @@ import { CategoryPill } from "@/components/ui/CategoryPill";
 import { POST_CATEGORIES } from "@/lib/constants";
 import { useToast } from "@/hooks/useToast";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useI18n } from "@/hooks/useI18n";
 import { cn } from "@/lib/cn";
 import type { PostCategory, AspectRatio } from "@/lib/types";
@@ -479,11 +480,118 @@ const ImageCropper = forwardRef<ImageCropperHandle, {
 
 // ─── CreatePage ───────────────────────────────────────────────────────────────
 
+function UsernameGate({ onClaimed }: { onClaimed: () => void }) {
+  const { t } = useI18n();
+  const [handle, setHandle] = useState("");
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const isValid = /^[a-z0-9_]{3,20}$/.test(handle);
+
+  useEffect(() => {
+    if (!isValid) { setAvailable(null); return; }
+    setChecking(true);
+    setAvailable(null);
+    const timer = setTimeout(async () => {
+      const res = await fetch(`/api/username/check?username=${handle}`);
+      const data = await res.json();
+      setAvailable(data.available);
+      setChecking(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [handle, isValid]);
+
+  const handleClaim = async () => {
+    if (!isValid || !available) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/username/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: handle }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? "Something went wrong");
+        return;
+      }
+      onClaimed();
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="bg-elevated border border-border rounded-2xl p-8 space-y-6">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-wide text-foreground mb-2">
+              {t("setup.heading")}
+            </h1>
+            <p className="text-sm text-muted leading-relaxed">
+              {t("setup.sub")}
+            </p>
+            <p className="text-xs text-brand font-bold mt-3 bg-brand/10 border border-brand/20 rounded-lg px-3 py-2">
+              Se requiere un usuario para publicar tu primer post.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-black uppercase tracking-wider text-muted">
+              {t("setup.usernameLabel")}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted font-bold text-sm">@</span>
+              <input
+                type="text"
+                value={handle}
+                onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                placeholder={t("setup.usernamePlaceholder")}
+                maxLength={20}
+                className="w-full pl-7 pr-3 py-3 bg-surface border border-border rounded-xl text-sm font-bold text-foreground placeholder:text-muted focus:outline-none focus:border-brand transition-colors"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-[11px] text-muted">{t("setup.rules")}</p>
+              {checking && <p className="text-[11px] text-muted font-bold">...</p>}
+              {!checking && available === true && <p className="text-[11px] text-acid font-black">{t("setup.available")}</p>}
+              {!checking && available === false && <p className="text-[11px] text-danger font-black">{t("setup.taken")}</p>}
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-xs text-danger font-bold bg-danger/10 border border-danger/20 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full cursor-pointer"
+            onClick={handleClaim}
+            disabled={!isValid || !available || loading}
+          >
+            {loading ? <Loader2 size={16} className="animate-spin" /> : t("setup.claimBtn")}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CreatePage() {
   useAuthGuard();
   const router = useRouter();
   const { addToast } = useToast();
   const { t } = useI18n();
+  const { user, loading: userLoading, refresh } = useCurrentUser();
 
   const [mode, setMode] = useState<MediaMode>("photo");
 
@@ -721,6 +829,10 @@ export default function CreatePage() {
     croppedRatio === "9:16" ? "max-w-[280px] w-full mx-auto aspect-[9/16]" :
     croppedRatio === "16:9" ? "w-full aspect-video" :
     "w-full aspect-square";
+
+  if (!userLoading && user && !user.username) {
+    return <UsernameGate onClaimed={refresh} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

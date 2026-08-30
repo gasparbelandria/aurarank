@@ -317,7 +317,7 @@ function FeedSlide({ post, isOwnPost, isActive, onRate }: FeedSlideProps) {
             />
           </div>
         ) : (
-          <Link href={`/@${post.author.username}/post/${post.id}`} className="relative z-10">
+          <Link href={`/@${post.author.username}/post/${post.id}`} prefetch={false} className="relative z-10">
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -334,7 +334,7 @@ function FeedSlide({ post, isOwnPost, isActive, onRate }: FeedSlideProps) {
           </Link>
         )
       ) : (
-        <Link href={`/@${post.author.username}/post/${post.id}`} className="relative z-10">
+        <Link href={`/@${post.author.username}/post/${post.id}`} prefetch={false} className="relative z-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.mediaUrl}
