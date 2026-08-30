@@ -18,6 +18,10 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: {
+    icon: "/AuraRank-Squared.png",
+    apple: "/AuraRank-Squared.png",
+  },
   title: {
     template: "%s | AuraRank",
     default: "AuraRank — Post. Get Ranked. Build Your Aura.",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -54,7 +54,7 @@ function XIcon() {
   );
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useI18n();
@@ -121,10 +121,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-background">
       <div className="flex items-center gap-3 mb-10">
-        <Link href="/" style={{ letterSpacing: "-0.02em" }}>
-          <span className="text-2xl font-black text-foreground">
-            AuraRank<span className="text-brand-light">.me</span>
-          </span>
+        <Link href="/">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/aurarank-logo.png" alt="AuraRank" style={{ height: 30, width: "auto" }} />
         </Link>
         <LangToggle />
       </div>
@@ -168,12 +167,20 @@ export default function LoginPage() {
 
         <p className="text-[11px] text-muted/50 text-center mt-6 leading-relaxed">
           {t("auth.termsNotice")}{" "}
-          <Link href="#" className="underline hover:text-muted">{t("auth.termsLink")}</Link>
+          <Link href="/terms" className="underline hover:text-muted">{t("auth.termsLink")}</Link>
           {" "}{t("auth.and")}{" "}
-          <Link href="#" className="underline hover:text-muted">{t("auth.privacyLink")}</Link>.
+          <Link href="/privacy" className="underline hover:text-muted">{t("auth.privacyLink")}</Link>.
         </p>
       </div>
 
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

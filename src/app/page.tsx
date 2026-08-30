@@ -58,9 +58,8 @@ export default function LandingPage() {
       {/* NAV */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(8,8,10,0.86)", backdropFilter: "blur(12px)", borderBottom: "1px solid #18181C" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "16px 24px", display: "flex", alignItems: "center", gap: 20 }}>
-          <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>
-            AuraRank<span style={{ color: "#A78BFA" }}>.me</span>
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/aurarank-logo.png" alt="AuraRank" style={{ height: 48, width: "auto" }} />
           <span style={{ ...MONO, fontSize: 10, letterSpacing: "0.14em", color: "#6b6b76", border: "1px solid #27272D", padding: "4px 8px", borderRadius: 5 }}>BETA</span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <LangToggle />
@@ -354,7 +353,8 @@ export default function LandingPage() {
       {/* FOOTER */}
       <div style={{ borderTop: "1px solid #18181C", background: "#0a0a0c" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "34px 24px", display: "flex", alignItems: "center", gap: 22, flexWrap: "wrap" }}>
-          <span style={{ fontWeight: 800, fontSize: 15 }}>AuraRank<span style={{ color: "#A78BFA" }}>.me</span></span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/aurarank-logo.png" alt="AuraRank" style={{ height: 22, width: "auto" }} />
           <span style={{ ...MONO, fontSize: 10, letterSpacing: "0.14em", color: "#4b4b53" }}>{t("landing.footerTagline")}</span>
           <div style={{ marginLeft: "auto", display: "flex", gap: 20, fontSize: 13, color: "#A1A1AA" }}>
             <Link href="/terms" style={{ color: "#A1A1AA" }}>{t("landing.footerTerms")}</Link>

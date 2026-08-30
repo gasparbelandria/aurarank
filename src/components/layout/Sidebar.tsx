@@ -45,9 +45,8 @@ export function Sidebar() {
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-60 flex-col bg-surface border-r border-border z-40">
       {/* Logo + notifications */}
       <div className="px-6 py-5 flex items-center justify-between">
-        <Link href="/" className="inline-flex items-baseline gap-0.5">
-          <span className="text-2xl font-black text-brand">AURA</span>
-          <span className="text-2xl font-black text-acid">RANK</span>
+        <Link href="/">
+          <Image src="/aurarank-logo.png" alt="AuraRank" width={120} height={32} style={{ height: 28, width: "auto" }} priority />
         </Link>
         <NotificationBell large />
       </div>

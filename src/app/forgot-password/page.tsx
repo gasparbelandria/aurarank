@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
-      <Link href="/" className="flex items-baseline gap-0.5 mb-10">
-        <span className="text-2xl font-black text-brand">AURA</span>
-        <span className="text-2xl font-black text-acid">RANK</span>
+      <Link href="/" className="mb-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/aurarank-logo.png" alt="AuraRank" style={{ height: 30, width: "auto" }} />
       </Link>
 
       <div className="w-full max-w-sm bg-elevated border border-border rounded-2xl p-8 text-center">
