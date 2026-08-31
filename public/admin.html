@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>AuraRank — Admin</title>
+  <link rel="icon" href="/AuraRank-Squared.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #09090b;
+      --elevated:  #111114;
+      --surface:   #16161a;
+      --border:    rgba(255,255,255,0.07);
+      --fg:        #fafafa;
+      --muted:     #71717a;
+      --brand:     #7c3aed;
+      --brand-l:   #a855f7;
+      --acid:      #84cc16;
+      --danger:    #ef4444;
+      --warning:   #f59e0b;
+      --font:      'JetBrains Mono', monospace;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--fg); font-family: var(--font); font-size: 13px; }
+
+    /* ── Layout ─────────────────────────────────────────────────── */
+    #adm-gate { display: none; flex-direction: column; min-height: 100vh; }
+    #adm-gate.visible { display: flex; }
+
+    .adm-wrap { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .adm-header {
+      background: var(--elevated);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .adm-header .adm-wrap { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .adm-logo { display: flex; align-items: center; gap: 0.5rem; }
+    .adm-logo img { height: 22px; width: auto; }
+    .adm-logo span { color: var(--muted); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .adm-header-right { display: flex; align-items: center; gap: 0.75rem; }
+    .adm-header-email { color: var(--muted); font-size: 0.7rem; }
+    .adm-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+    .adm-btn:hover { color: var(--fg); border-color: var(--brand); }
+    .adm-btn.danger:hover { color: var(--danger); border-color: var(--danger); }
+
+    /* ── Nav ─────────────────────────────────────────────────────── */
+    .adm-nav { background: var(--elevated); border-bottom: 1px solid var(--border); }
+    .adm-nav .adm-wrap { display: flex; gap: 0; }
+    .adm-nav-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--muted); font-family: var(--font); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.75rem 1.25rem; cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+    .adm-nav-btn:hover { color: var(--fg); }
+    .adm-nav-btn.is-active { color: var(--brand-l); border-bottom-color: var(--brand); }
+    .adm-badge { display: inline-block; background: var(--danger); color: #fff; font-size: 0.6rem; font-weight: 800; border-radius: 99px; padding: 0 0.35rem; margin-left: 0.35rem; vertical-align: middle; }
+
+    /* ── Main / Panels ───────────────────────────────────────────── */
+    .adm-main { flex: 1; padding: 1.75rem 0 4rem; }
+    .adm-panel { display: none; }
+    .adm-panel.is-active { display: block; }
+
+    /* ── Section title ───────────────────────────────────────────── */
+    .adm-section-title { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.875rem; }
+
+    /* ── Stat cards ──────────────────────────────────────────────── */
+    .adm-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; margin-bottom: 2rem; }
+    .adm-stat-card { background: var(--elevated); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+    .adm-stat-card__label { font-size: 0.65rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem; }
+    .adm-stat-card__value { font-size: 1.5rem; font-weight: 800; color: var(--fg); line-height: 1; }
+    .adm-stat-card__sub { font-size: 0.65rem; color: var(--muted); margin-top: 0.3rem; }
+    .adm-stat-card__value.brand { color: var(--brand-l); }
+    .adm-stat-card__value.acid  { color: var(--acid); }
+    .adm-stat-card__value.danger { color: var(--danger); }
+
+    /* ── Chart container ─────────────────────────────────────────── */
+    .adm-chart-wrap { background: var(--elevated); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 2rem; }
+    .adm-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .adm-chart-canvas { position: relative; height: 180px; }
+
+    /* ── Pills ───────────────────────────────────────────────────── */
+    .adm-pills { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .adm-pill { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.25rem 0.6rem; border-radius: 99px; cursor: pointer; transition: all 0.15s; }
+    .adm-pill:hover { color: var(--fg); border-color: var(--brand); }
+    .adm-pill.is-active { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .adm-pill.critical.is-active { background: var(--danger); border-color: var(--danger); }
+    .adm-pill.high.is-active    { background: var(--warning); border-color: var(--warning); color: #000; }
+    .adm-pill.medium.is-active  { background: var(--brand); border-color: var(--brand); }
+    .adm-pill.low.is-active     { background: var(--acid); border-color: var(--acid); color: #000; }
+
+    /* ── Toolbar ─────────────────────────────────────────────────── */
+    .adm-toolbar { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .adm-search { background: var(--elevated); border: 1px solid var(--border); color: var(--fg); font-family: var(--font); font-size: 0.75rem; padding: 0.4rem 0.75rem; border-radius: 8px; outline: none; transition: border-color 0.15s; min-width: 180px; }
+    .adm-search:focus { border-color: var(--brand); }
+    .adm-search::placeholder { color: var(--muted); }
+    select.adm-search { cursor: pointer; }
+    .adm-pagination { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+    .adm-page-info { font-size: 0.65rem; color: var(--muted); white-space: nowrap; }
+    .adm-page-btn { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 0.65rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .adm-page-btn:hover:not(:disabled) { color: var(--fg); border-color: var(--brand); }
+    .adm-page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    /* ── Table ───────────────────────────────────────────────────── */
+    .adm-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 1rem; }
+    .adm-table { width: 100%; border-collapse: collapse; }
+    .adm-table th { background: var(--elevated); font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 0.65rem 0.875rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .adm-table td { font-size: 0.72rem; padding: 0.6rem 0.875rem; border-bottom: 1px solid var(--border); color: var(--fg); vertical-align: middle; }
+    .adm-table tr:last-child td { border-bottom: none; }
+    .adm-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .adm-loading { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.75rem; }
+    .adm-muted { color: var(--muted); }
+    .adm-mono { font-family: var(--font); }
+
+    /* ── Priority badges ─────────────────────────────────────────── */
+    .adm-prio { display: inline-block; font-size: 0.6rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2rem 0.5rem; border-radius: 4px; }
+    .adm-prio.critical { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .adm-prio.high     { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .adm-prio.medium   { background: rgba(124,58,237,0.15); color: var(--brand-l); }
+    .adm-prio.low      { background: rgba(132,204,22,0.15); color: var(--acid); }
+
+    /* ── Action buttons in table ─────────────────────────────────── */
+    .adm-action { background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font); font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; padding: 0.2rem 0.5rem; border-radius: 5px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .adm-action:hover { color: var(--fg); border-color: var(--brand); }
+    .adm-action.danger:hover { color: var(--danger); border-color: var(--danger); }
+    .adm-action.resolve { color: var(--acid); border-color: rgba(132,204,22,0.3); }
+    .adm-action.resolve:hover { background: rgba(132,204,22,0.1); }
+    .adm-action.unresolve { color: var(--muted); }
+
+    /* ── Donut charts row ────────────────────────────────────────── */
+    .adm-donuts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 2rem; }
+    @media (max-width: 640px) { .adm-donuts { grid-template-columns: 1fr; } }
+    .adm-donut-wrap { background: var(--elevated); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; }
+    .adm-donut-canvas { position: relative; height: 140px; }
+
+    /* ── Thumbnail in posts table ────────────────────────────────── */
+    .adm-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); }
+
+    /* ── Auth gate (not admin) ───────────────────────────────────── */
+    #adm-error-screen { display: none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
+    #adm-error-screen.visible { display: flex; }
+    #adm-error-screen p { color: var(--muted); font-size: 0.8rem; }
+    #adm-error-screen strong { color: var(--danger); font-size: 1rem; }
+
+    /* ── Loading spinner ─────────────────────────────────────────── */
+    #adm-loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.75rem; z-index: 99; }
+    .adm-spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #adm-loading-screen p { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* ── Resolved row ────────────────────────────────────────────── */
+    .adm-resolved td { opacity: 0.4; }
+
+    /* ── Scrollbar ───────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="adm-loading-screen">
+  <div class="adm-spinner"></div>
+  <p>Authenticating</p>
+</div>
+
+<!-- Error screen -->
+<div id="adm-error-screen">
+  <strong>Access Denied</strong>
+  <p>This page requires admin privileges.</p>
+  <a href="/" style="color:var(--brand-l);font-size:0.75rem">← Back to AuraRank</a>
+</div>
+
+<!-- Admin gate -->
+<div id="adm-gate">
+
+  <!-- Header -->
+  <header class="adm-header">
+    <div class="adm-wrap">
+      <div class="adm-logo">
+        <img src="/aurarank-logo.png" alt="AuraRank" />
+        <span>[ADMIN]</span>
+      </div>
+      <div class="adm-header-right">
+        <span class="adm-header-email" id="adm-user-name"></span>
+        <button class="adm-btn danger" id="adm-logout-btn">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="adm-nav">
+    <div class="adm-wrap">
+      <button class="adm-nav-btn is-active" data-panel="overview">Overview</button>
+      <button class="adm-nav-btn" data-panel="users">Users</button>
+      <button class="adm-nav-btn" data-panel="posts">Posts</button>
+      <button class="adm-nav-btn" data-panel="errors">Errors <span class="adm-badge" id="adm-err-badge" style="display:none"></span></button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="adm-main">
+    <div class="adm-wrap">
+
+      <!-- ── Panel: Overview ──────────────────────────────────── -->
+      <div class="adm-panel is-active" id="adm-panel-overview">
+
+        <!-- Signups chart -->
+        <div class="adm-chart-wrap">
+          <div class="adm-chart-header">
+            <p class="adm-section-title" style="margin:0">New users</p>
+            <div class="adm-pills" id="adm-days-pills">
+              <button class="adm-pill is-active" data-days="30">30d</button>
+              <button class="adm-pill" data-days="60">60d</button>
+              <button class="adm-pill" data-days="90">90d</button>
+            </div>
+          </div>
+          <div class="adm-chart-canvas"><canvas id="adm-users-chart"></canvas></div>
+        </div>
+
+        <!-- Posts chart -->
+        <div class="adm-chart-wrap">
+          <div class="adm-chart-header">
+            <p class="adm-section-title" style="margin:0">New posts</p>
+          </div>
+          <div class="adm-chart-canvas"><canvas id="adm-posts-chart"></canvas></div>
+        </div>
+
+        <!-- Stat cards -->
+        <p class="adm-section-title">Platform stats</p>
+        <div class="adm-stats" id="adm-stats">
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Total users</div><div class="adm-stat-card__value" id="s-users">—</div><div class="adm-stat-card__sub" id="s-users-sub"></div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Total posts</div><div class="adm-stat-card__value brand" id="s-posts">—</div><div class="adm-stat-card__sub" id="s-posts-sub"></div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Total ratings</div><div class="adm-stat-card__value brand" id="s-ratings">—</div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Follows</div><div class="adm-stat-card__value" id="s-follows">—</div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Avg aura score</div><div class="adm-stat-card__value acid" id="s-avg-aura">—</div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Avg ratings/post</div><div class="adm-stat-card__value" id="s-avg-ratings">—</div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Active users (7d)</div><div class="adm-stat-card__value acid" id="s-active">—</div></div>
+          <div class="adm-stat-card"><div class="adm-stat-card__label">Unresolved errors</div><div class="adm-stat-card__value" id="s-errors">—</div></div>
+        </div>
+
+        <!-- Distributions -->
+        <div class="adm-donuts">
+          <div class="adm-donut-wrap">
+            <p class="adm-section-title">Posts by category</p>
+            <div class="adm-donut-canvas"><canvas id="adm-cat-chart"></canvas></div>
+          </div>
+          <div class="adm-donut-wrap">
+            <p class="adm-section-title">Posts by media type</p>
+            <div class="adm-donut-canvas"><canvas id="adm-media-chart"></canvas></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Panel: Users ─────────────────────────────────────── -->
+      <div class="adm-panel" id="adm-panel-users">
+        <p class="adm-section-title">Users with username</p>
+        <div class="adm-toolbar">
+          <input class="adm-search" id="adm-user-search" type="search" placeholder="Search username or name…" autocomplete="off" spellcheck="false" />
+          <div class="adm-pagination">
+            <button class="adm-page-btn" id="adm-u-prev" disabled>← prev</button>
+            <span class="adm-page-info" id="adm-u-info">—</span>
+            <button class="adm-page-btn" id="adm-u-next" disabled>next →</button>
+          </div>
+        </div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Display name</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="adm-users-tbody">
+              <tr><td colspan="4" class="adm-loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Panel: Posts ─────────────────────────────────────── -->
+      <div class="adm-panel" id="adm-panel-posts">
+        <p class="adm-section-title">All posts</p>
+        <div class="adm-toolbar">
+          <select class="adm-search" id="adm-post-category" style="min-width:140px">
+            <option value="">All categories</option>
+            <option>Fitness</option><option>Fashion</option><option>Food</option>
+            <option>Travel</option><option>Art</option><option>Music</option>
+            <option>Sports</option><option>Gaming</option><option>Tech</option>
+            <option>Beauty</option><option>Pets</option><option>Comedy</option>
+            <option>Dance</option><option>Random</option>
+          </select>
+          <select class="adm-search" id="adm-post-media" style="min-width:120px">
+            <option value="">All media</option>
+            <option value="photo">Photo</option>
+            <option value="youtube">YouTube</option>
+          </select>
+          <div class="adm-pagination">
+            <button class="adm-page-btn" id="adm-p-prev" disabled>← prev</button>
+            <span class="adm-page-info" id="adm-p-info">—</span>
+            <button class="adm-page-btn" id="adm-p-next" disabled>next →</button>
+          </div>
+        </div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Author</th>
+                <th>Caption</th>
+                <th>Category</th>
+                <th>Aura</th>
+                <th>Ratings</th>
+                <th>Type</th>
+                <th>Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="adm-posts-tbody">
+              <tr><td colspan="9" class="adm-loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Panel: Errors ────────────────────────────────────── -->
+      <div class="adm-panel" id="adm-panel-errors">
+        <p class="adm-section-title">Error log</p>
+        <div class="adm-toolbar">
+          <div class="adm-pills" id="adm-err-prio-pills">
+            <button class="adm-pill is-active" data-prio="all">All</button>
+            <button class="adm-pill critical" data-prio="critical">Critical</button>
+            <button class="adm-pill high" data-prio="high">High</button>
+            <button class="adm-pill medium" data-prio="medium">Medium</button>
+            <button class="adm-pill low" data-prio="low">Low</button>
+          </div>
+          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.68rem;color:var(--muted);cursor:pointer">
+            <input type="checkbox" id="adm-err-resolved" style="accent-color:var(--brand)" />
+            Show resolved
+          </label>
+          <div class="adm-pagination">
+            <button class="adm-page-btn" id="adm-e-prev" disabled>← prev</button>
+            <span class="adm-page-info" id="adm-e-info">—</span>
+            <button class="adm-page-btn" id="adm-e-next" disabled>next →</button>
+          </div>
+        </div>
+        <div class="adm-table-wrap">
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Priority</th>
+                <th>Source</th>
+                <th>Section</th>
+                <th>Title</th>
+                <th>URL</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="adm-errors-tbody">
+              <tr><td colspan="7" class="adm-loading">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div><!-- /#adm-gate -->
+
+<script type="module">
+// ─── Helpers ────────────────────────────────────────────────────────────────
+const $ = (sel) => document.querySelector(sel);
+const fmt = (n) => n == null ? "—" : Number(n).toLocaleString();
+const fmtDate = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" })
+    + " " + d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+};
+const fmtDateShort = (iso) => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
+};
+
+const CHART_COLORS = ["#7c3aed","#a855f7","#84cc16","#22d3ee","#f59e0b","#ef4444","#ec4899","#6366f1","#10b981","#f97316","#64748b","#8b5cf6","#14b8a6","#eab308"];
+
+function makeLineChart(canvasId, labels, data, label) {
+  const ctx = $(canvasId).getContext("2d");
+  return new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        backgroundColor: "rgba(124,58,237,0.25)",
+        borderColor: "#7c3aed",
+        borderWidth: 1.5,
+        borderRadius: 3,
+      }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => ` ${c.parsed.y}` } } },
+      scales: {
+        x: { grid: { color: "rgba(255,255,255,0.04)" }, ticks: { color: "#71717a", font: { family: "'JetBrains Mono'", size: 10 }, maxTicksLimit: 10 } },
+        y: { grid: { color: "rgba(255,255,255,0.04)" }, ticks: { color: "#71717a", font: { family: "'JetBrains Mono'", size: 10 }, precision: 0 }, beginAtZero: true },
+      },
+    },
+  });
+}
+
+function makeDoughnutChart(canvasId, labels, data) {
+  const ctx = $(canvasId).getContext("2d");
+  return new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: CHART_COLORS.slice(0, data.length), borderWidth: 0 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: "65%",
+      plugins: {
+        legend: { position: "right", labels: { color: "#71717a", font: { family: "'JetBrains Mono'", size: 10 }, boxWidth: 10, padding: 8 } },
+        tooltip: { callbacks: { label: (c) => ` ${c.label}: ${c.parsed}` } },
+      },
+    },
+  });
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+let currentUser = null;
+
+async function init() {
+  const res = await fetch("/api/auth/me").catch(() => null);
+  $("#adm-loading-screen").style.display = "none";
+  if (!res || !res.ok) { showError(); return; }
+  const me = await res.json();
+  if (me.role !== "admin") { showError(); return; }
+  currentUser = me;
+  $("#adm-user-name").textContent = me.username ? `@${me.username}` : me.displayName;
+  $("#adm-gate").classList.add("visible");
+  loadOverview(30);
+  setupNav();
+}
+
+function showError() {
+  $("#adm-error-screen").classList.add("visible");
+}
+
+// ─── Nav ─────────────────────────────────────────────────────────────────────
+function setupNav() {
+  document.querySelectorAll(".adm-nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".adm-nav-btn").forEach((b) => b.classList.remove("is-active"));
+      document.querySelectorAll(".adm-panel").forEach((p) => p.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const panel = btn.dataset.panel;
+      $(`#adm-panel-${panel}`).classList.add("is-active");
+      if (panel === "users" && !usersLoaded) loadUsers();
+      if (panel === "posts" && !postsLoaded) loadPosts();
+      if (panel === "errors" && !errorsLoaded) loadErrors();
+    });
+  });
+
+  $("#adm-logout-btn").addEventListener("click", async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    location.href = "/";
+  });
+}
+
+// ─── Overview ────────────────────────────────────────────────────────────────
+let usersChart = null, postsChart = null, catChart = null, mediaChart = null;
+
+async function loadOverview(days) {
+  const res = await fetch(`/api/admin/stats?days=${days}`).catch(() => null);
+  if (!res || !res.ok) return;
+  const { stats, charts, categories, mediaTypes } = await res.json();
+
+  // Stat cards
+  $("#s-users").textContent   = fmt(stats.totalUsers);
+  $("#s-users-sub").textContent = `+${stats.usersToday} today · +${stats.usersThisWeek} this week`;
+  $("#s-posts").textContent   = fmt(stats.totalPosts);
+  $("#s-posts-sub").textContent = `+${stats.postsToday} today · +${stats.postsThisWeek} this week`;
+  $("#s-ratings").textContent = fmt(stats.totalRatings);
+  $("#s-follows").textContent = fmt(stats.totalFollows);
+  $("#s-avg-aura").textContent = fmt(stats.avgAura);
+  $("#s-avg-ratings").textContent = stats.avgRatingsPerPost;
+  $("#s-active").textContent  = fmt(stats.activeUsers);
+  const errEl = $("#s-errors");
+  errEl.textContent = fmt(stats.unresolvedErrors);
+  errEl.className = "adm-stat-card__value" + (stats.unresolvedErrors > 0 ? " danger" : " acid");
+
+  // Error badge in nav
+  const badge = $("#adm-err-badge");
+  if (stats.unresolvedErrors > 0) {
+    badge.textContent = stats.unresolvedErrors;
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+
+  // Charts
+  const uLabels = charts.usersByDay.map((d) => d.date.slice(5));
+  const uData   = charts.usersByDay.map((d) => d.count);
+  const pLabels = charts.postsByDay.map((d) => d.date.slice(5));
+  const pData   = charts.postsByDay.map((d) => d.count);
+
+  if (usersChart) { usersChart.data.labels = uLabels; usersChart.data.datasets[0].data = uData; usersChart.update(); }
+  else usersChart = makeLineChart("#adm-users-chart", uLabels, uData, "Signups");
+
+  if (postsChart) { postsChart.data.labels = pLabels; postsChart.data.datasets[0].data = pData; postsChart.update(); }
+  else postsChart = makeLineChart("#adm-posts-chart", pLabels, pData, "Posts");
+
+  // Doughnut: categories
+  const catLabels = Object.keys(categories);
+  const catData   = Object.values(categories);
+  if (catChart) { catChart.data.labels = catLabels; catChart.data.datasets[0].data = catData; catChart.update(); }
+  else if (catLabels.length > 0) catChart = makeDoughnutChart("#adm-cat-chart", catLabels, catData);
+
+  // Doughnut: media types
+  const mLabels = Object.keys(mediaTypes);
+  const mData   = Object.values(mediaTypes);
+  if (mediaChart) { mediaChart.data.labels = mLabels; mediaChart.data.datasets[0].data = mData; mediaChart.update(); }
+  else if (mLabels.length > 0) mediaChart = makeDoughnutChart("#adm-media-chart", mLabels, mData);
+}
+
+// Days toggle
+document.querySelectorAll("[data-days]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-days]").forEach((b) => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    loadOverview(parseInt(btn.dataset.days));
+  });
+});
+
+// ─── Users ───────────────────────────────────────────────────────────────────
+let usersLoaded = false, uPage = 0, uTotal = 0, uPageSize = 25, uSearch = "";
+
+function renderUsers(users) {
+  const tbody = $("#adm-users-tbody");
+  if (!users.length) { tbody.innerHTML = `<tr><td colspan="4" class="adm-loading">No users found.</td></tr>`; return; }
+  tbody.innerHTML = users.map((u) => {
+    const inner = Array.isArray(u.aura_users) ? u.aura_users[0] : u.aura_users;
+    const role = inner?.role ?? "user";
+    const joinedRaw = inner?.created_at ?? u.created_at;
+    return `<tr>
+      <td><a href="/@${u.username}" target="_blank" style="color:var(--brand-l);text-decoration:none">@${u.username}</a></td>
+      <td>${u.display_name ?? "—"}</td>
+      <td><span class="adm-prio ${role === "admin" ? "high" : "low"}">${role}</span></td>
+      <td class="adm-muted">${fmtDateShort(joinedRaw)}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function loadUsers() {
+  usersLoaded = true;
+  const params = new URLSearchParams({ page: uPage });
+  if (uSearch) params.set("q", uSearch);
+  const res = await fetch(`/api/admin/users?${params}`).catch(() => null);
+  if (!res || !res.ok) return;
+  const { users, total, pageSize } = await res.json();
+  uTotal = total; uPageSize = pageSize;
+  renderUsers(users);
+  const start = uPage * uPageSize + 1;
+  const end = Math.min((uPage + 1) * uPageSize, uTotal);
+  $("#adm-u-info").textContent = total ? `${start}–${end} of ${fmt(total)}` : "0 results";
+  $("#adm-u-prev").disabled = uPage === 0;
+  $("#adm-u-next").disabled = end >= uTotal;
+}
+
+$("#adm-u-prev").addEventListener("click", () => { uPage--; loadUsers(); });
+$("#adm-u-next").addEventListener("click", () => { uPage++; loadUsers(); });
+
+let uSearchTimeout;
+$("#adm-user-search").addEventListener("input", (e) => {
+  clearTimeout(uSearchTimeout);
+  uSearchTimeout = setTimeout(() => { uPage = 0; uSearch = e.target.value.trim(); loadUsers(); }, 350);
+});
+
+// ─── Posts ───────────────────────────────────────────────────────────────────
+let postsLoaded = false, pPage = 0, pTotal = 0, pPageSize = 25;
+
+function renderPosts(posts) {
+  const tbody = $("#adm-posts-tbody");
+  if (!posts.length) { tbody.innerHTML = `<tr><td colspan="9" class="adm-loading">No posts found.</td></tr>`; return; }
+  tbody.innerHTML = posts.map((p) => {
+    const thumb = p.thumbnail_url
+      ? `<img class="adm-thumb" src="${p.thumbnail_url}" alt="" />`
+      : p.media_type === "photo" && p.media_url
+      ? `<img class="adm-thumb" src="${p.media_url}" alt="" />`
+      : `<div class="adm-thumb" style="display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--muted)">▶</div>`;
+    const cap = (p.caption ?? "").slice(0, 50) + ((p.caption?.length ?? 0) > 50 ? "…" : "");
+    return `<tr>
+      <td>${thumb}</td>
+      <td><a href="/@${p.username}" target="_blank" style="color:var(--brand-l);text-decoration:none">@${p.username}</a></td>
+      <td class="adm-muted" title="${p.caption ?? ""}">${cap || "—"}</td>
+      <td><span style="font-size:0.65rem;color:var(--muted)">${p.category ?? "—"}</span></td>
+      <td style="color:var(--acid);font-weight:800">${fmt(p.aura_score)}</td>
+      <td class="adm-muted">${fmt(p.rating_count)}</td>
+      <td><span class="adm-prio ${p.media_type === "youtube" ? "high" : "low"}">${p.media_type ?? "photo"}</span></td>
+      <td class="adm-muted">${fmtDateShort(p.created_at)}</td>
+      <td><button class="adm-action danger" onclick="deletePost('${p.id}', this)">Delete</button></td>
+    </tr>`;
+  }).join("");
+}
+
+async function loadPosts() {
+  postsLoaded = true;
+  const params = new URLSearchParams({ page: pPage });
+  const cat = $("#adm-post-category").value;
+  const media = $("#adm-post-media").value;
+  if (cat) params.set("category", cat);
+  if (media) params.set("mediaType", media);
+  const res = await fetch(`/api/admin/posts?${params}`).catch(() => null);
+  if (!res || !res.ok) return;
+  const { posts, total, pageSize } = await res.json();
+  pTotal = total; pPageSize = pageSize;
+  renderPosts(posts);
+  const start = pPage * pPageSize + 1;
+  const end = Math.min((pPage + 1) * pPageSize, pTotal);
+  $("#adm-p-info").textContent = total ? `${start}–${end} of ${fmt(total)}` : "0 results";
+  $("#adm-p-prev").disabled = pPage === 0;
+  $("#adm-p-next").disabled = end >= pTotal;
+}
+
+window.deletePost = async (id, btn) => {
+  if (!confirm("Delete this post? This cannot be undone.")) return;
+  btn.textContent = "…"; btn.disabled = true;
+  const res = await fetch("/api/admin/posts", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+  if (res.ok) { btn.closest("tr").remove(); pTotal--; $("#adm-p-info").textContent = `${fmt(pTotal)} total`; }
+  else { btn.textContent = "Error"; btn.disabled = false; }
+};
+
+$("#adm-p-prev").addEventListener("click", () => { pPage--; loadPosts(); });
+$("#adm-p-next").addEventListener("click", () => { pPage++; loadPosts(); });
+$("#adm-post-category").addEventListener("change", () => { pPage = 0; loadPosts(); });
+$("#adm-post-media").addEventListener("change", () => { pPage = 0; loadPosts(); });
+
+// ─── Errors ──────────────────────────────────────────────────────────────────
+let errorsLoaded = false, ePage = 0, eTotal = 0, ePageSize = 25;
+let eActivePrio = "all", eShowResolved = false;
+
+function prioHtml(p) {
+  return `<span class="adm-prio ${p}">${p}</span>`;
+}
+
+function renderErrors(errors) {
+  const tbody = $("#adm-errors-tbody");
+  if (!errors.length) { tbody.innerHTML = `<tr><td colspan="7" class="adm-loading">No errors found.</td></tr>`; return; }
+  tbody.innerHTML = errors.map((e) => {
+    const resolvedClass = e.resolved ? "adm-resolved" : "";
+    const urlDisplay = e.url ? `<a href="${e.url}" target="_blank" style="color:var(--brand-l);text-decoration:none;font-size:0.65rem">${new URL(e.url).pathname.slice(0, 30)}</a>` : "—";
+    const resolveBtn = e.resolved
+      ? `<button class="adm-action unresolve" onclick="toggleResolved('${e.id}', false, this)">Unresolve</button>`
+      : `<button class="adm-action resolve" onclick="toggleResolved('${e.id}', true, this)">Resolve</button>`;
+    return `<tr class="${resolvedClass}" id="err-row-${e.id}">
+      <td class="adm-muted" style="white-space:nowrap">${fmtDate(e.created_at)}</td>
+      <td>${prioHtml(e.priority)}</td>
+      <td class="adm-muted">${e.source ?? "—"}</td>
+      <td class="adm-muted">${e.section ?? "—"}</td>
+      <td style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${(e.title ?? "").replace(/"/g,"&quot;")}">${e.title ?? "—"}</td>
+      <td>${urlDisplay}</td>
+      <td>${resolveBtn}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function loadErrors() {
+  errorsLoaded = true;
+  const params = new URLSearchParams({ page: ePage });
+  if (eActivePrio !== "all") params.set("priority", eActivePrio);
+  if (eShowResolved) params.set("resolved", "1");
+  const res = await fetch(`/api/admin/errors?${params}`).catch(() => null);
+  if (!res || !res.ok) return;
+  const { errors, total, pageSize } = await res.json();
+  eTotal = total; ePageSize = pageSize;
+  renderErrors(errors);
+  const start = ePage * ePageSize + 1;
+  const end = Math.min((ePage + 1) * ePageSize, eTotal);
+  $("#adm-e-info").textContent = total ? `${start}–${end} of ${fmt(total)}` : "0 results";
+  $("#adm-e-prev").disabled = ePage === 0;
+  $("#adm-e-next").disabled = end >= eTotal;
+}
+
+window.toggleResolved = async (id, resolved, btn) => {
+  btn.textContent = "…"; btn.disabled = true;
+  const res = await fetch("/api/admin/errors", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, resolved }) });
+  if (res.ok) {
+    // Reload to re-apply filters
+    ePage = 0;
+    loadErrors();
+    // Also update badge
+    const badgeRes = await fetch("/api/admin/stats?days=1").catch(() => null);
+    if (badgeRes?.ok) {
+      const { stats } = await badgeRes.json();
+      const badge = $("#adm-err-badge");
+      if (stats.unresolvedErrors > 0) { badge.textContent = stats.unresolvedErrors; badge.style.display = "inline-block"; }
+      else badge.style.display = "none";
+    }
+  } else { btn.textContent = resolved ? "Resolve" : "Unresolve"; btn.disabled = false; }
+};
+
+// Priority pills
+document.querySelectorAll("[data-prio]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-prio]").forEach((b) => b.classList.remove("is-active"));
+    btn.classList.add("is-active");
+    eActivePrio = btn.dataset.prio;
+    ePage = 0;
+    loadErrors();
+  });
+});
+
+$("#adm-e-prev").addEventListener("click", () => { ePage--; loadErrors(); });
+$("#adm-e-next").addEventListener("click", () => { ePage++; loadErrors(); });
+$("#adm-err-resolved").addEventListener("change", (e) => { eShowResolved = e.target.checked; ePage = 0; loadErrors(); });
+
+// ─── Boot ────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

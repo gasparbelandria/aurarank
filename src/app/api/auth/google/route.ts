@@ -5,11 +5,13 @@ import { supabase } from "@/lib/supabase";
 import { signToken } from "@/lib/jwt";
 import { rateLimit } from "@/lib/rate-limit";
 import { logServerError } from "@/lib/logger";
+import { sendWelcomeEmail } from "@/lib/email";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID ?? "";
 
 const schema = z.object({
   accessToken: z.string().min(1),
+  lang: z.enum(["en", "es"]).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -28,7 +30,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const { accessToken } = parsed.data;
+  const { accessToken, lang: bodyLang } = parsed.data;
+  // Detect language: from body → Accept-Language header → default en
+  const acceptLang = req.headers.get("accept-language") ?? "";
+  const browserLang = acceptLang.split(",")[0]?.split(";")[0]?.trim().slice(0, 2).toLowerCase();
+  const lang: "en" | "es" = bodyLang ?? (browserLang === "es" ? "es" : "en");
 
   // Validate token with Google and get user info
   const [tokenInfo, userInfo] = await Promise.all([
@@ -95,6 +101,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Server error" }, { status: 500 });
     }
     user = data;
+    // Fire-and-forget welcome email — never blocks auth response
+    void sendWelcomeEmail({ to: email, displayName: displayName ?? "there", lang });
   }
 
   // Fire-and-forget last_seen_at update (never blocks response)

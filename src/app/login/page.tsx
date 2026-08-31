@@ -57,7 +57,7 @@ function XIcon() {
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [gisReady, setGisReady] = useState(false);
@@ -98,7 +98,7 @@ function LoginContent() {
           const res = await fetch("/api/auth/google", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ accessToken: resp.access_token }),
+            body: JSON.stringify({ accessToken: resp.access_token, lang: locale }),
           });
           const data = await res.json();
           if (!res.ok) throw new Error(data.error ?? t("auth.errorGeneric"));
