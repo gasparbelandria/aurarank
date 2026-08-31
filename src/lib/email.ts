@@ -1,6 +1,12 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY ?? "");
+// Lazy init — avoids build-time throw when env var is absent
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY not set");
+  return new Resend(key);
+}
+
 const FROM = "AuraRank <hello@aurarank.me>";
 const REPLY_TO = "fdirinot@gmail.com";
 const LOGO = "https://aurarank.me/aurarank-logo.png";
@@ -226,6 +232,7 @@ export async function sendWelcomeEmail(opts: {
 }): Promise<void> {
   const { to, displayName, lang } = opts;
   try {
+    const resend = getResend();
     await resend.emails.send({
       from: FROM,
       to,
