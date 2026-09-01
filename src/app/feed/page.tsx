@@ -219,6 +219,7 @@ function FeedSlide({ post, isOwnPost, isActive, onRate }: FeedSlideProps) {
           autoplay: 1,
           mute: 1,
           start: startSec,
+          ...(endSec > startSec ? { end: endSec } : {}),
           controls: 0,
           modestbranding: 1,
           rel: 0,

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Manrope, JetBrains_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { RootProviders } from "@/components/layout/RootProviders";
 import { ToastContainer } from "@/components/ui/Toast";
@@ -78,6 +79,11 @@ export default function RootLayout({
           {children}
           <ToastContainer />
         </RootProviders>
+        <Script
+          src="https://analytics.weblify.me/script.js"
+          data-website-id="641105b7-6a44-4361-8ede-c619fd5d03a3"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

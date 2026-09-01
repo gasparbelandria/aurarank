@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
   let query = supabase
     .from("aura_posts")
     .select(`
-      id, user_id, username, media_type, media_url, caption, category,
+      id, user_id, username, media_type, media_url, thumbnail_url, caption, category,
       aura_score, rating_count, created_at, aspect_ratio,
       aura_usernames!username(display_name),
       aura_users!user_id(avatar_url)
