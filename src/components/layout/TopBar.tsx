@@ -21,9 +21,8 @@ export function TopBar({ title, showLogo = false }: TopBarProps) {
   return (
     <header className="md:hidden sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
       {showLogo ? (
-        <Link href="/" className="inline-flex items-baseline gap-0.5">
-          <span className="text-xl font-black text-brand">AURA</span>
-          <span className="text-xl font-black text-acid">RANK</span>
+        <Link href="/" className="inline-flex items-center">
+          <Image src="/aurarank-logo.png" alt="AuraRank" width={120} height={28} style={{ height: 28, width: "auto" }} priority />
         </Link>
       ) : (
         <h1 className="text-base font-black uppercase tracking-widest text-foreground">

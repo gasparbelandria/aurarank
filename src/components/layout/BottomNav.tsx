@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, PlusCircle, User, Users } from "lucide-react";
+import { Home, Images, PlusCircle, HelpCircle, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useI18n } from "@/hooks/useI18n";
@@ -14,11 +14,11 @@ export function BottomNav() {
   const profileHref = user?.username ? `/@${user.username}` : "/setup";
 
   const NAV_ITEMS = [
-    { href: "/feed", icon: Home, label: t("nav.feed") },
-    { href: "/rankings", icon: Trophy, label: t("nav.ranks") },
-    { href: "/create", icon: PlusCircle, label: t("nav.post"), isCreate: true },
-    { href: "/groups", icon: Users, label: t("groups.navLabel") },
-    { href: profileHref, icon: User, label: t("nav.profile") },
+    { href: "/feed",     icon: Home,        label: t("nav.feed") },
+    { href: "/my-posts", icon: Images,      label: t("nav.myPosts") },
+    { href: "/create",   icon: PlusCircle,  label: t("nav.post"), isCreate: true },
+    { href: "/help",     icon: HelpCircle,  label: t("nav.help") },
+    { href: profileHref, icon: User,        label: t("nav.profile") },
   ];
 
   return (

@@ -184,3 +184,100 @@ input[type='range']:hover::-webkit-slider-thumb {
   transform: scale(1.1);
   box-shadow: 0 0 12px color-mix(in srgb, var(--color-brand) 50%, transparent);
 }
+
+/* ── Landing hero responsive grid ─────────────────────────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 56px;
+  align-items: center;
+}
+
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .hero-grid .hero-card {
+    order: 2;
+    width: 100%;
+  }
+  .hero-grid .hero-text {
+    order: 1;
+  }
+  .hero-grid .hero-text h1 {
+    font-size: 56px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-grid .hero-text h1 {
+    font-size: 44px !important;
+  }
+}
+
+/* ── Nav logo swap ────────────────────────────────────────────────────── */
+.nav-logo-mobile { display: none; }
+
+@media (max-width: 640px) {
+  .nav-logo-wide      { display: none; }
+  .nav-beta-desktop   { display: none !important; }
+  .nav-logo-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+}
+
+/* ── Landing page responsive sections ─────────────────────────────────── */
+@media (max-width: 1024px) {
+  .landing-why {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-steps {
+    grid-template-columns: 1fr !important;
+  }
+  .landing-rating {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .landing-share {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .landing-faq {
+    grid-template-columns: 1fr !important;
+  }
+  .landing-h2 {
+    font-size: 34px !important;
+  }
+  .landing-cta-title {
+    font-size: 48px !important;
+  }
+  .landing-rank-row {
+    gap: 10px !important;
+    padding: 14px !important;
+  }
+  .landing-rank-badge {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-why {
+    grid-template-columns: 1fr !important;
+  }
+  .landing-h2 {
+    font-size: 28px !important;
+  }
+  .landing-cta-title {
+    font-size: 36px !important;
+  }
+  .landing-rank-move {
+    display: none !important;
+  }
+}

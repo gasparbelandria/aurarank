@@ -556,7 +556,7 @@ export default function FeedPage() {
       <Sidebar />
       <BottomNav />
 
-      <main className="md:pl-60 h-screen overflow-hidden flex flex-col">
+      <main className="md:pl-60 h-screen overflow-hidden flex flex-col pb-[60px] md:pb-0">
         <TopBar showLogo />
 
         {/* Feed mode tabs */}

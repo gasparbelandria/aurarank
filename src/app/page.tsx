@@ -54,13 +54,18 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{ background: "#08080A", color: "#F5F5F5" }}>
+    <div style={{ background: "#08080A", color: "#F5F5F5", overflowX: "hidden" }}>
       {/* NAV */}
       <div style={{ position: "sticky", top: 0, zIndex: 20, background: "rgba(8,8,10,0.86)", backdropFilter: "blur(12px)", borderBottom: "1px solid #18181C" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "16px 24px", display: "flex", alignItems: "center", gap: 20 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/aurarank-logo.png" alt="AuraRank" style={{ height: 48, width: "auto" }} />
-          <span style={{ ...MONO, fontSize: 10, letterSpacing: "0.14em", color: "#6b6b76", border: "1px solid #27272D", padding: "4px 8px", borderRadius: 5 }}>BETA</span>
+          <img src="/aurarank-logo.png" alt="AuraRank" className="nav-logo-wide" style={{ height: 48, width: "auto" }} />
+          <div className="nav-logo-mobile">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/AuraRank-Squared.png" alt="AuraRank" style={{ height: 40, width: "auto" }} />
+            <span style={{ ...MONO, fontSize: 8, letterSpacing: "0.14em", color: "#6b6b76" }}>BETA</span>
+          </div>
+          <span className="nav-beta-desktop" style={{ ...MONO, fontSize: 10, letterSpacing: "0.14em", color: "#6b6b76", border: "1px solid #27272D", padding: "4px 8px", borderRadius: 5 }}>BETA</span>
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10 }}>
             <LangToggle />
             {!authLoading && (
@@ -79,8 +84,8 @@ export default function LandingPage() {
 
       {/* HERO */}
       <div style={{ position: "relative", overflow: "hidden", background: "radial-gradient(900px 520px at 18% -5%, #1b1233 0%, rgba(8,8,10,0) 70%), radial-gradient(700px 420px at 88% 10%, #16210d 0%, rgba(8,8,10,0) 65%)" }}>
-        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "84px 24px 90px", display: "grid", gridTemplateColumns: "1.05fr 0.95fr", gap: 56, alignItems: "center" }}>
-          <div>
+        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "84px 24px 90px" }} className="hero-grid">
+          <div className="hero-text">
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, border: "1px solid #2c2242", background: "#150f22", padding: "7px 12px", borderRadius: 999, ...MONO, fontSize: 10, letterSpacing: "0.14em", color: "#A78BFA", marginBottom: 26 }}>
               <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#B8FF3D", display: "inline-block", flexShrink: 0 }} />
               <span>{t("landing.ratingsLive")}</span>
@@ -116,7 +121,7 @@ export default function LandingPage() {
           </div>
 
           {/* HERO CARD */}
-          <div style={{ animation: "floaty 7s ease-in-out infinite" }}>
+          <div className="hero-card" style={{ animation: "floaty 7s ease-in-out infinite" }}>
             <div style={{ borderRadius: 26, border: "1px solid #2c2242", background: "linear-gradient(165deg, #1b1434 0%, #111114 55%)", padding: 24, boxShadow: "0 50px 90px -40px rgba(139,92,246,0.45)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                 <div style={{ width: 58, height: 58, borderRadius: "50%", background: "linear-gradient(140deg, #A78BFA, #8B5CF6)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 24, color: "#08080A", flexShrink: 0 }}>A</div>
@@ -172,8 +177,8 @@ export default function LandingPage() {
       <div style={{ borderTop: "1px solid #18181C", background: "#08080A" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "76px 24px" }}>
           <div style={{ ...MONO, fontSize: 11, letterSpacing: "0.2em", color: "#6b6b76", marginBottom: 14 }}>{t("landing.howTag")}</div>
-          <h2 style={{ margin: "0 0 40px", fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em" }}>{t("landing.howTitle")}</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          <h2 className="landing-h2" style={{ margin: "0 0 40px", fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em" }}>{t("landing.howTitle")}</h2>
+          <div className="landing-steps" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
             {STEPS.map((s) => (
               <div key={s.n} style={{ border: "1px solid #27272D", background: "#111114", borderRadius: 20, padding: 26 }}>
                 <div style={{ fontWeight: 800, fontSize: 46, lineHeight: 1, letterSpacing: "-0.04em", color: "#27272D" }}>{s.n}</div>
@@ -187,10 +192,10 @@ export default function LandingPage() {
 
       {/* RATING STRIP */}
       <div style={{ borderTop: "1px solid #18181C", background: "linear-gradient(180deg, #0c0a12, #08080A)" }}>
-        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "70px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
+        <div className="landing-rating" style={{ maxWidth: 1160, margin: "0 auto", padding: "70px 24px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
           <div>
             <div style={{ ...MONO, fontSize: 11, letterSpacing: "0.2em", color: "#6b6b76", marginBottom: 14 }}>{t("landing.ratingTag")}</div>
-            <h2 style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{t("landing.ratingTitle")}</h2>
+            <h2 className="landing-h2" style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{t("landing.ratingTitle")}</h2>
             <p style={{ fontSize: 17, color: "#A1A1AA", lineHeight: 1.6, maxWidth: 440, margin: "18px 0 0" }}>
               {t("landing.ratingBody")}
             </p>
@@ -223,7 +228,7 @@ export default function LandingPage() {
           <div style={{ display: "flex", alignItems: "flex-end", gap: 20, flexWrap: "wrap", marginBottom: 34 }}>
             <div>
               <div style={{ ...MONO, fontSize: 11, letterSpacing: "0.2em", color: "#6b6b76", marginBottom: 14 }}>{t("landing.rankingsTag")}</div>
-              <h2 style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em" }}>{t("landing.rankingsTitle")}</h2>
+              <h2 className="landing-h2" style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em" }}>{t("landing.rankingsTitle")}</h2>
             </div>
             <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
               {TABS.map((tab) => (
@@ -245,13 +250,13 @@ export default function LandingPage() {
           </div>
           <div style={{ border: "1px solid #27272D", borderRadius: 20, overflow: "hidden", background: "#111114" }}>
             {BOARD.map((r, i) => (
-              <div key={r.handle} style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 22px", borderTop: i === 0 ? "none" : "1px solid #18181C", background: r.rowBg }}>
+              <div key={r.handle} className="landing-rank-row" style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 22px", borderTop: i === 0 ? "none" : "1px solid #18181C", background: r.rowBg }}>
                 <span style={{ ...MONO, fontSize: 13, color: "#A1A1AA", width: 62, flexShrink: 0 }}>{r.rank}</span>
                 <div style={{ width: 34, height: 34, borderRadius: "50%", background: r.avatarBg, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 13, color: "#08080A", flexShrink: 0 }}>{r.initial}</div>
                 <span style={{ fontWeight: 800, fontSize: 15 }}>{r.handle}</span>
-                <span style={{ ...MONO, fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>{r.badge}</span>
+                <span className="landing-rank-badge" style={{ ...MONO, fontSize: 10, letterSpacing: "0.12em", color: "#A78BFA" }}>{r.badge}</span>
                 <span style={{ marginLeft: "auto", fontWeight: 800, fontSize: 18, fontVariantNumeric: "tabular-nums" }}>{r.aura}</span>
-                <span style={{ ...MONO, fontSize: 11, width: 88, textAlign: "right", color: r.moveColor, flexShrink: 0 }}>{r.move}</span>
+                <span className="landing-rank-move" style={{ ...MONO, fontSize: 11, width: 88, textAlign: "right", color: r.moveColor, flexShrink: 0 }}>{r.move}</span>
               </div>
             ))}
           </div>
@@ -261,7 +266,7 @@ export default function LandingPage() {
       {/* WHY */}
       <div style={{ borderTop: "1px solid #18181C" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "76px 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+          <div className="landing-why" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
             {WHY.map((w) => (
               <div key={w.tag} style={{ border: "1px solid #27272D", background: "#111114", borderRadius: 18, padding: 24 }}>
                 <div style={{ ...MONO, fontSize: 10, letterSpacing: "0.16em", color: "#B8FF3D", marginBottom: 16 }}>{w.tag}</div>
@@ -275,10 +280,10 @@ export default function LandingPage() {
 
       {/* SHARE CARD */}
       <div style={{ borderTop: "1px solid #18181C", background: "linear-gradient(180deg, #0c0a12, #08080A)" }}>
-        <div style={{ maxWidth: 1160, margin: "0 auto", padding: "76px 24px", display: "grid", gridTemplateColumns: "1fr 420px", gap: 56, alignItems: "center" }}>
+        <div className="landing-share" style={{ maxWidth: 1160, margin: "0 auto", padding: "76px 24px", display: "grid", gridTemplateColumns: "1fr 420px", gap: 56, alignItems: "center" }}>
           <div>
             <div style={{ ...MONO, fontSize: 11, letterSpacing: "0.2em", color: "#6b6b76", marginBottom: 14 }}>{t("landing.shareTag")}</div>
-            <h2 style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{t("landing.shareTitle")}</h2>
+            <h2 className="landing-h2" style={{ margin: 0, fontWeight: 800, fontSize: 44, letterSpacing: "-0.035em", lineHeight: 1.05 }}>{t("landing.shareTitle")}</h2>
             <p style={{ fontSize: 17, color: "#A1A1AA", lineHeight: 1.6, maxWidth: 460, margin: "18px 0 0" }}>
               {t("landing.shareBody")}
             </p>
@@ -316,7 +321,7 @@ export default function LandingPage() {
       {/* CTA */}
       <div style={{ borderTop: "1px solid #18181C" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "96px 24px", textAlign: "center" }}>
-          <h2 style={{ margin: 0, fontWeight: 800, fontSize: 68, letterSpacing: "-0.045em", lineHeight: 0.98 }}>
+          <h2 className="landing-cta-title" style={{ margin: 0, fontWeight: 800, fontSize: 68, letterSpacing: "-0.045em", lineHeight: 0.98 }}>
             {t("landing.ctaTitle").split("AuraRank").map((part, i, arr) => (
               i < arr.length - 1 ? (
                 <span key={i}>
@@ -339,7 +344,7 @@ export default function LandingPage() {
       <div style={{ borderTop: "1px solid #18181C" }}>
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "70px 24px" }}>
           <div style={{ ...MONO, fontSize: 11, letterSpacing: "0.2em", color: "#6b6b76", marginBottom: 28 }}>{t("landing.faqTag")}</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="landing-faq" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             {FAQ.map((f) => (
               <div key={f.q} style={{ border: "1px solid #27272D", background: "#111114", borderRadius: 16, padding: "20px 22px" }}>
                 <div style={{ fontWeight: 800, fontSize: 16 }}>{f.q}</div>
